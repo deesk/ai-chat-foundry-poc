@@ -5,6 +5,7 @@ targetScope = 'subscription'
 @description('Name of the the environment which is used to generate a short unique hash used in all resources.')
 param environmentName string
 
+
 @minLength(1)
 @description('Location for all resources')
 @metadata({
@@ -88,7 +89,8 @@ param embedDeploymentCapacity int = 30
 
 param useApplicationInsights bool = true
 @description('Use the RAG search')
-param useSearchService bool = false
+param useSearchServiceStr string = 'false'
+var useSearchService = useSearchServiceStr == 'true'
 
 @description('Do we want to use the Azure Monitor tracing')
 param enableAzureMonitorTracing bool = false

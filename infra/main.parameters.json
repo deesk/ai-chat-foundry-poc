@@ -47,7 +47,7 @@
     "useApplicationInsights": {
       "value": "${USE_APPLICATION_INSIGHTS=true}"
     },
-    "useSearchService": {
+    "useSearchServiceStr": {
       "value": "${USE_AZURE_AI_SEARCH_SERVICE=false}"
     },
     "chatDeploymentName": {
@@ -66,7 +66,7 @@
       "value": "${AZURE_AI_CHAT_DEPLOYMENT_SKU=GlobalStandard}"
     },
     "chatDeploymentCapacity": {
-      "value": "${AZURE_AI_CHAT_DEPLOYMENT_CAPACITY=80}"
+      "value": "${AZURE_AI_CHAT_DEPLOYMENT_CAPACITY=10}"
     },
     "embeddingDeploymentName": {
       "value": "${AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small}"
@@ -81,10 +81,10 @@
       "value": "${AZURE_AI_EMBED_MODEL_VERSION=1}"
     },
     "embedDeploymentSku": {
-      "value": "${AZURE_AI_EMBED_DEPLOYMENT_SKU=Standard}"
+      "value": "${AZURE_AI_EMBED_DEPLOYMENT_SKU=GlobalStandard}"
     },
     "embedDeploymentCapacity": {
-      "value": "${AZURE_AI_EMBED_DEPLOYMENT_CAPACITY=50}"
+      "value": "${AZURE_AI_EMBED_DEPLOYMENT_CAPACITY=10}"
     },
     "embeddingDeploymentDimensions": {
       "value": "${AZURE_AI_EMBED_DIMENSIONS=100}"

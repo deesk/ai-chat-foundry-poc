@@ -1,0 +1,42 @@
+```
+
+MELBOURNE LOGISTICS OPERATIONS GUIDE
+
+COMPANY: Linfox Australia
+REGION: Victoria
+
+DEPOT LOCATIONS:
+- Laverton North DC: Primary distribution hub, operates 24/7
+- Somerton DC: Cold chain and temperature sensitive freight
+- Dandenong South: Last mile delivery hub for SE suburbs
+
+DELIVERY ZONES:
+- Zone 1 (CBD): Same day delivery cutoff 11am
+- Zone 2 (Inner suburbs): Next day delivery
+- Zone 3 (Outer suburbs): 2-3 business days
+- Zone 4 (Regional VIC): 3-5 business days
+
+FREIGHT TYPES:
+- Ambient: Standard palletised freight
+- Cold chain: 2-8 degrees celsius
+- Frozen: Below -18 degrees celsius
+- Dangerous goods: ADG code compliant vehicles only
+
+COMMON DELAY REASONS:
+- Traffic: Monash Freeway and Westgate Bridge peak hours
+- Weather: Flooding in Laverton and Derrimut corridors
+- Capacity: Peak periods October-December
+- Customs: International freight clearance at Tullamarine
+
+DRIVER SHIFT TIMES:
+- Early shift: 4am - 12pm
+- Day shift: 8am - 4pm  
+- Afternoon shift: 2pm - 10pm
+- Night shift: 10pm - 6am
+
+ESCALATION PROCESS:
+- Level 1: Driver contacts depot supervisor
+- Level 2: Depot supervisor contacts operations manager
+- Level 3: Operations manager contacts state manager
+- Level 4: State manager contacts national operations
+```
