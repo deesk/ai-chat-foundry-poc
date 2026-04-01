@@ -314,11 +314,16 @@ class SearchIndexManager:
         """
         import nltk
         nltk.download('punkt')
+        nltk.download('punkt_tab')
         
         from nltk.tokenize import sent_tokenize
         # Split the data to sentence tokens.
         sentence_tokens = []
+        
+        # Modified: added .txt support alongside .md (original only had .md)
         globs = glob.glob(input_directory + '/*.md', recursive=True)
+        globs += glob.glob(input_directory + '/*.txt', recursive=True)
+        
         index = 0
         for fle in globs:
             with open(fle) as f:

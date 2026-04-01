@@ -14,8 +14,6 @@ from azure.identity import AzureDeveloperCliCredential, ManagedIdentityCredentia
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 
-from .search_index_manager import SearchIndexManager
-from .util import get_logger
 
 logger = None
 enable_trace = False
