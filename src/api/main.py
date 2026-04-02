@@ -13,6 +13,7 @@ from azure.ai.inference.aio import ChatCompletionsClient, EmbeddingsClient
 from azure.identity import AzureDeveloperCliCredential, ManagedIdentityCredential
 from dotenv import load_dotenv
 from .util import get_logger
+from .search_index_manager import SearchIndexManager
 from fastapi.staticfiles import StaticFiles
 
 
