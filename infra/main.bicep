@@ -185,7 +185,7 @@ module ai 'core/host/ai-environment.bicep' = if (empty(azureExistingAIProjectRes
 
 var searchServiceEndpoint = !useSearchService
   ? ''
-  : empty(azureExistingAIProjectResourceId) ? ai!.outputs.searchServiceEndpoint : ''
+  : ai!.outputs.searchServiceEndpoint
 
 // If bringing an existing AI project, set up the log analytics workspace here
 module logAnalytics 'core/monitor/loganalytics.bicep' = if (!empty(azureExistingAIProjectResourceId)) {
