@@ -110,11 +110,18 @@ async def chat_stream_handler(
                 prompt_messages = PromptTemplate.from_string(
                     'You are a Melbourne logistics operations assistant for Linfox Australia. '
                     'You help drivers, depot staff and operations managers with delivery zones, '
+                    'shift times, freight types and escalation procedures.\n\nHere is '
+                    'the context data:\n\n{{context}}').create_messages(data=dict(context=context))
+            else:
+                logger.info("Unable to find the relevant information in the index for the request.")
+                prompt_messages = PromptTemplate.from_string(
+                    'You are a Melbourne logistics operations assistant for Linfox Australia. '
+                    'You help drivers, depot staff and operations managers with delivery zones, '
+                    'shift times, freight types and escalation procedures. '
                     'You were unable to find relevant information to answer this question. '
                     'Respond with: "I\'m sorry, I can only answer questions related to Melbourne '
                     'logistics operations. Please rephrase your question or contact your depot supervisor."'
-            else:
-                logger.info("Unable to find the relevant information in the index for the request.")
+                ).create_messages()
         try:
             accumulated_message = ""
             chat_coroutine = await chat_client.complete(
