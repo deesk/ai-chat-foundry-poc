@@ -109,21 +109,17 @@ async def chat_stream_handler(
             if context:
                 prompt_messages = PromptTemplate.from_string(
                     'You are a Melbourne logistics operations assistant for Linfox Australia. '
-                    'You help drivers, depot staff and operations managers with delivery zones, '
-                    'shift times, freight types and escalation procedures. '
-                    'You must ONLY answer questions directly related to logistics operations. '
-                    'Do not answer questions about weather, news, or anything unrelated to logistics. '
-                    'If the question is not about logistics operations respond ONLY with: '
-                    '"I\'m sorry, I can only answer questions related to Melbourne logistics operations." '
+                    'You must ONLY answer questions based on the context data provided. '
+                    'If the answer is not in the context data, respond with: '
+                    '"I\'m sorry, I don\'t have that information in my knowledge base. '
+                    'Please contact your depot supervisor for assistance." '
                     '\n\nHere is the context data:\n\n{{context}}'
                 ).create_messages(data=dict(context=context))
             else:
                 logger.info("Unable to find the relevant information in the index for the request.")
                 prompt_messages = PromptTemplate.from_string(
-                       'You are a Melbourne logistics operations assistant for Linfox Australia. '
-                       'You must ONLY answer questions related to Melbourne logistics operations. '
-                       'Respond ONLY with: "I\'m sorry, I can only answer questions related to '
-                       'Melbourne logistics operations. Please contact your depot supervisor."'
+                    'Respond with: "I\'m sorry, I don\'t have that information in my knowledge base. '
+                    'Please contact your depot supervisor for assistance."'
                 ).create_messages()
         try:
             accumulated_message = ""
