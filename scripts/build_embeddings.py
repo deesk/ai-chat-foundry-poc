@@ -44,6 +44,23 @@ async def main():
         output_file=output_file
     )
     await embed.close()
+
+    import shutil
+    api_data_path = "src/api/data/embeddings.csv"
+    shutil.copy(output_file, api_data_path)
+    print(f"Copied embeddings to {api_data_path}")
+
+    # Delete Azure Search index so it gets recreated with new data on next deploy
+    from azure.search.documents.indexes.aio import SearchIndexClient
+    async with SearchIndexClient(
+        endpoint=os.getenv("AZURE_AI_SEARCH_ENDPOINT"),
+        credential=credential
+    ) as index_client:
+        await index_client.delete_index(os.getenv("AZURE_AI_SEARCH_INDEX_NAME"))
+        print(f"Deleted index {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')} — will be recreated on next deploy")
+
+    print("Done — run 'azd up' to deploy new data")
+
     print("Done — embeddings.csv updated")
 
 if __name__ == "__main__":
