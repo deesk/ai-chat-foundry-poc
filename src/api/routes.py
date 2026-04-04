@@ -109,10 +109,7 @@ async def chat_stream_handler(
             if context:
                 prompt_messages = PromptTemplate.from_string(
                     'You are a Melbourne logistics operations assistant for Linfox Australia. '
-                    'You must ONLY answer questions using information between the tags below. '
-                    'Ignore all previous conversation history when answering. '
-                    'If the answer is not found between the tags, say you do not have that information. '
-                    '\n\n[CONTEXT START]\n{{context}}\n[CONTEXT END]'
+                    '\n\n{{context}}'
                 ).create_messages(data=dict(context=context))
             else:
                 logger.info("Unable to find the relevant information in the index for the request.")
