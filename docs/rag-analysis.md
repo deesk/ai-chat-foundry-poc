@@ -99,17 +99,33 @@ Loading zones added for testing: 7
 
 ### What worked correctly
 
-"What are the delivery zones?" returned all 4 zones. "What shift times do drivers work?" returned all 4 shifts. "How does the escalation process work?" returned all 4 levels. "How many depot locations?" returned all 3 depots. "What are common delay reasons?" returned only 2 of 4. "What freight types does Linfox handle?" returned only 3 of 4.
+"delivery zones"
+Returned all 4 zones.
+
+"driver shift times"
+Returned all 4 shifts.
+
+"escalation process"
+Returned all 4 levels.
+
+"depot locations"
+Returned all 3 depots.
+
+"common delay reasons"
+Returned only 2 of 4.
+
+"freight types"
+Returned only 3 of 4.
 
 ### Missing data: Freight types
 
-Question: "What freight types does Linfox handle?"
-Expected: Ambient, Cold chain, Frozen, Dangerous goods.
+Question: "freight types"
+Expected: Ambient, Cold chain, Frozen, Dangerous goods
 Returned: Ambient, Cold chain, Frozen. Dangerous goods missing.
 
-GPT presented 3 freight types with full confidence, unaware a 4th exists. A confident wrong answer no signal to the user that information is missing.
+GPT presented 3 freight types with full confidence, unaware a 4th exists. A confident wrong answer, no signal to the user that information is missing.
 
-[SCREENSHOT 1: place ss1_freight_types.png here]
+![Freight types partial answer](images/ss1_freight_types.png)
 
 Root cause: fixed-size chunking. The 4-sentence cut placed "Dangerous goods" into a different chunk alongside delay reason content. Chunk data from `embeddings.csv`:
 
@@ -128,17 +144,17 @@ Token: "Dangerous goods: ADG code compliant vehicles only.
 Embedding: [-0.001, 0.067, 0.124, -0.000, -0.012, 0.125, -0.096, -0.045 ...]
 ```
 
-Chunk 5 contains three unrelated topics mixed together. When converted to a vector, the meaning gets pulled in multiple directions at once like mixing too many paint colours and ending up with a muddy result that does not clearly represent any single colour. The vector is not strongly associated with freight types or delay reasons, so it scores lower than expected for either query and may not make the top 5.
+Chunk 5 contains three unrelated topics mixed together. When converted to a vector, the meaning gets pulled in multiple directions at once, like mixing too many paint colours and ending up with a muddy result that does not clearly represent any single colour. The vector is not strongly associated with freight types or delay reasons, so it scores lower than expected for either query and may not make the top 5.
 
-[DIAGRAM 3: place chunking_problem.png here]
+![Chunking boundary problem](images/chunking_problem.png)
 
 ### Missing data: Common delay reasons
 
-Question: "What are common delay reasons?"
-Expected: Traffic, Weather, Capacity, Customs.
+Question: "common delay reasons"
+Expected: Traffic, Weather, Capacity, Customs
 Returned: Traffic and Weather only.
 
-[SCREENSHOT 2: place delay_reasons_partial.png here]
+![Delay reasons partial answer](images/delay_reasons_partial.png)
 
 Chunk 6 NOT retrieved (mixed with shift times):
 
@@ -167,11 +183,13 @@ Embedding: [0.004, 0.039, 0.175, -0.063, -0.024, -0.010, 0.052, -0.030 ...]
 
 Whether a section lands in one chunk or multiple is determined by sentence count and where the 4-sentence boundary falls, not by logical section boundaries. Escalation got lucky. Freight types and delay reasons did not.
 
----
-
 ## Part 2: Naming Convention Testing
 
-7 loading zones were added to the dataset to test whether naming conventions and content similarity affect vector proximity and retrieval accuracy. Alpha naming was used: Zone A (Port Melbourne) through Zone G (Laverton). Delivery zones used numeric naming: Zone 1 through Zone 4.
+7 loading zones were added to the dataset to test whether naming conventions and content similarity affect vector proximity and retrieval accuracy.
+
+7 zones were chosen deliberately. With fixed-size chunking at 4 sentences per chunk, 7 zones described one sentence each would spread across at least 2 chunks. Using fewer zones risked all loading zone data landing in a single chunk, which would make the test inconclusive since a single chunk always retrieves cleanly regardless of naming.
+
+Alpha naming was chosen (Zone A through Zone G) because delivery zones already used numeric naming (Zone 1 through Zone 4). Using numeric naming for loading zones too would immediately create vector proximity from the shared Zone 1-N pattern, making it impossible to isolate whether contamination came from naming conventions or content similarity. Alpha naming eliminates numeric overlap as a variable. If contamination still occurs with alpha naming, it must be caused by content similarity alone.
 
 Tests 1 and 2 were conducted in isolated fresh sessions as diagnostic tools to understand what RAG retrieves without conversation history interference. Test 3 reflects real user behaviour asking multiple questions in the same session.
 
