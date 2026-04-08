@@ -5,7 +5,7 @@
 
 ---
 
-<a href="images/rag_analysis/rag_inforgraph.png"><img src="images/rag_analysis/rag_inforgraph.png" width="80%"></a>
+<div align="center"><a href="images/rag_analysis/rag_inforgraph.png"><img src="images/rag_analysis/rag_inforgraph.png" width="80%"></a></div>
 
 ## TL;DR
 
@@ -46,9 +46,9 @@ Technical flow:
 
 Key constraint: GPT only sees the top 5 chunks. Answers in chunk 6 or beyond are never retrieved.
 
-<table><tr>
-<td><a href="images/rag_analysis/d1_rag_query_flow.png"><img src="images/rag_analysis/d1_rag_query_flow.png" width="45%"></a></td>
-<td><a href="images/rag_analysis/d2_data_pipeline.png"><img src="images/rag_analysis/d2_data_pipeline.png" width="45%"></a></td>
+<table style="border: none; width: 90%; margin: 0 auto;"><tr>
+<td style="border: none; text-align: center;"><a href="images/rag_analysis/d1_rag_query_flow.png"><img src="images/rag_analysis/d1_rag_query_flow.png" width="100%"></a></td>
+<td style="border: none; text-align: center;"><a href="images/rag_analysis/d2_data_pipeline.png"><img src="images/rag_analysis/d2_data_pipeline.png" width="100%"></a></td>
 </tr></table>
 
 ---
@@ -131,7 +131,7 @@ Returned: Ambient, Cold chain, Frozen. Dangerous goods missing.
 
 GPT presented 3 freight types with full confidence, unaware a 4th exists. No signal to the user that information was missing.
 
-<a href="images/rag_analysis/part1/p1-ss1_freight-types.png"><img src="images/rag_analysis/part1/p1-ss1_freight-types.png" width="80%"></a>
+<div align="center"><a href="images/rag_analysis/part1/p1-ss1_freight-types.png"><img src="images/rag_analysis/part1/p1-ss1_freight-types.png" width="80%"></a></div>
 
 Looking at the chunk data from `embeddings.csv`, the root cause appears to be the fixed-size chunking boundary. The 4-sentence cut placed "Dangerous goods" into a different chunk alongside delay reason content:
 
@@ -160,7 +160,7 @@ Question: "common delay reasons"
 Expected: Traffic, Weather, Capacity, Customs
 Returned: Traffic and Weather only.
 
-<a href="images/rag_analysis/part1/p1-ss2_common_delay_reasons.png"><img src="images/rag_analysis/part1/p1-ss2_common_delay_reasons.png" width="100%"></a>
+<div align="center"><a href="images/rag_analysis/part1/p1-ss2_common_delay_reasons.png"><img src="images/rag_analysis/part1/p1-ss2_common_delay_reasons.png" width="100%"></a></div>
 
 Chunk 6 was not retrieved. Looking at the token data, it appears to be dominated by shift time semantics which would make it a poor match for delay reason queries:
 
