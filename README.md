@@ -161,6 +161,13 @@ azd down --purge
 
 ---
 
+## Cost Analysis
+ 
+Total project cost: AU$2.59 across 16 active development days.
+Infrastructure accounted for 98% of spend. AI API calls (GPT-4o-mini + embeddings) accounted for 2%.
+ 
+See the full [Cost Analysis](docs/cost-analysis.md) for service breakdown, key observations and production considerations.
+
 ## Upstream Bug Fix
 
 A blocking bug was identified and fixed in this fork from the upstream Microsoft template.
