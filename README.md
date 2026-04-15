@@ -1,45 +1,103 @@
-# ai-chat-foundry-poc
+# Linfox Logistics RAG Chatbot
 
-A domain-specific RAG chatbot built on Azure AI Foundry, customised for Melbourne logistics operations using Linfox Australia as the domain. Forked from [Azure-Samples/get-started-with-ai-chat](https://github.com/Azure-Samples/get-started-with-ai-chat) and extended with custom data ingestion, infrastructure fixes and systematic behaviour analysis.
-
-Built as a portfolio project to demonstrate practical RAG development skills and investigate real RAG behaviour in a production-like environment.
+[Overview](#overview) | [Chatbot in Action](#chatbot-in-action) | [Quick Start](#quick-start) | [Key Findings](#key-findings) | [Architecture](#architecture) | [Reports](#reports) | [Bug Fix](#upstream-bug-fix)
 
 ---
 
-## The Most Important Part of This Project
+## Overview
 
-If you read one thing, read this:
+A domain-specific RAG chatbot built on Azure AI Foundry, customised for Melbourne logistics operations using Linfox Australia as the domain. Allows operations staff to query depot locations, delivery zones, freight types, shift times, delay reasons and escalation procedures through natural language.
 
-### [RAG Behaviour Analysis Report](docs/rag-analysis.md)
+Forked from [Azure-Samples/get-started-with-ai-chat](https://github.com/Azure-Samples/get-started-with-ai-chat) and extended with custom data ingestion, infrastructure fixes and systematic behaviour analysis.
 
-This report documents 8 findings from systematic testing of the chatbot covering chunking failures, vector proximity, conversation history behaviour, prompt engineering and security vulnerabilities. Each finding was discovered through real testing, not theory.
-
-It includes a structured investigation where GPT was temporarily asked to self-report exactly what it used to answer each question, turning a black box into a transparent debugging exercise. It documents how a user can inject false information into the system, how GPT carries it forward as fact, and why realistic-sounding injections are more dangerous than obvious ones.
-
-This is the centrepiece of the project. The code is the vehicle. The analysis is the work.
+The primary purpose of this project is not to build a production-grade chatbot. It is to investigate and experiment with RAG behaviour, how chunking boundaries, prompt versions, and retrieval configurations affect what the system actually does in real conditions. Linfox Melbourne logistics operations was chosen as the domain to make the failure modes operationally meaningful rather than theoretical.
 
 ---
 
 ## Chatbot in Action
 
-Three questions tested in the same session showing real behaviour, not a sanitised demo:
+<div align="center">
+  <img src="docs/images/chatbot_demo.gif" width="700" alt="Chatbot Demo">
+</div>
 
-<div align="center"><a href="docs/images/rag_analysis/chatbot_screenshot.png"><img src="docs/images/rag_analysis/chatbot_screenshot.png" width="80%"></a></div>
-
-1. "What are the delivery zones?": correct delivery zones returned, but loading zones also bled in due to shared suburb names. Documented in [Part 2 of the analysis](docs/rag-analysis.md#part-2-naming-convention-testing).
-2. "What freight types does Linfox handle?": 3 of 4 returned with full confidence. Dangerous goods missing due to a chunking boundary. No error signal to the user. Documented in [Part 1](docs/rag-analysis.md#part-1-initial-testing-original-dataset-no-loading-zones).
-3. "What are the Sydney depot locations?": clean out of scope handling. GPT correctly stayed within Melbourne operations without being explicitly instructed to.
+*Five queries demonstrating correct retrieval, chunking failure, conversation history behaviour, information injection and out of scope handling. Full analysis in the [RAG Behaviour Analysis Report](docs/rag-analysis.md).*
 
 ---
 
-## What This Project Demonstrates
+## Quick Start
 
-- Building and deploying a domain-specific RAG chatbot on Azure AI Foundry
-- Writing a custom Python embedding pipeline (`scripts/build_embeddings.py`) to ingest domain-specific data for RAG and semantic search
-- Identifying and fixing a blocking upstream bug that prevented the app from loading
-- Systematic investigation of RAG behaviour across 6 parts and 8 findings
-- Identifying prompt security vulnerabilities including information injection through real testing
-- Documenting findings clearly enough to present in a technical interview
+**Prerequisites:** Python 3.10+, Node.js 18+, Azure subscription, Azure Developer CLI (`azd`)
+
+```powershell
+# 1. Clone the repo
+git clone https://github.com/deesk/linfox-rag-chatbot-azure.git
+cd linfox-rag-chatbot-azure
+
+# 2. Install dependencies
+pip install -r src/api/requirements.txt
+
+# 3. Deploy to Azure
+azd up
+
+# 4. Shut down when done
+azd down --purge
+```
+
+> Deployment takes approximately 25 minutes.
+
+> **Note:** Pre-generated embeddings are included in the repo. Only run `python scripts/build_embeddings.py` if you modify the knowledge base data.
+
+---
+
+## Updating the Knowledge Base
+
+The Microsoft template has a built-in embedding process for its own sample data. To support custom domain data, a reusable pipeline was built: `scripts/build_embeddings.py`
+
+This script reads `.txt` files from `src/static/data/`, generates embeddings using `text-embedding-3-small`, saves `embeddings.csv` to `src/api/data/`, and deletes the existing Azure Search index so it is recreated fresh on next deploy.
+
+To use your own domain data, replace `src/static/data/melbourne-logistics.txt` then run:
+
+```powershell
+python scripts/build_embeddings.py
+```
+
+Then redeploy:
+
+```powershell
+azd up
+```
+
+---
+
+## Key Findings
+
+RAG quality depends primarily on data structure, chunking strategy and prompt engineering, not the AI model itself.
+
+**What worked:**
+- Depot locations, shift times and escalation procedures returned correctly when content landed within a single retrieval chunk
+- Out of scope queries handled gracefully without explicit instruction
+- Conversation history supplemented incomplete RAG retrieval in real user sessions
+
+**What failed:**
+- System returned 3 of 4 freight types with full confidence. Dangerous goods missing due to a chunk boundary. No error signal to the user
+- Delivery and loading zones contaminated each other because they shared Melbourne suburb names in content
+- User injected false delay reasons. System accepted them, used real knowledge base data to make them sound credible, and carried them forward even when challenged
+
+**Key insight:**
+The most dangerous failure is not a sorry response. It is a confident wrong answer. A system that sounds certain while missing critical information gives the user no signal to question it.
+
+Full investigation: [RAG Behaviour Analysis Report](docs/rag-analysis.md)
+
+---
+
+## Architecture
+<div align="center">
+  <img src="docs/images/rag_analysis/d1_rag_query_flow.png" width="700" alt="RAG Query Flow">
+</div>
+
+A standard RAG pipeline — user query is embedded, matched against the logistics knowledge base in Azure AI Search, top 5 chunks injected into GPT-4o-mini alongside conversation history to generate a response.
+
+Full architecture and data pipeline details in the [RAG Behaviour Analysis Report](docs/rag-analysis.md).
 
 ---
 
@@ -57,116 +115,13 @@ Three questions tested in the same session showing real behaviour, not a sanitis
 
 ---
 
-## Architecture
+## Reports
 
-![RAG Query Flow](docs/images/rag_analysis/d1_rag_query_flow.png)
+**[RAG Behaviour Analysis Report](docs/rag-analysis.md)**
+Systematic investigation across 6 parts and 8 findings covering chunking failures, vector contamination, conversation history behaviour, prompt injection and system prompt security. Each finding documented with evidence, methodology and root cause analysis.
 
-![Data Pipeline](docs/images/rag_analysis/d2_data_pipeline.png)
-
-The system follows a standard RAG pattern: source text is split into 4-sentence chunks, each chunk embedded into a 100-dimensional vector, stored in Azure AI Search, and retrieved by similarity when a user asks a question. The top 5 chunks are injected into the GPT-4o-mini system prompt alongside conversation history.
-
-Full architecture details and behaviour findings are documented in the [RAG Analysis Report](docs/rag-analysis.md).
-
----
-
-## Custom Embedding Pipeline
-
-The Microsoft template includes a built-in embedding process for its own sample documents. To ingest custom domain data (Linfox Melbourne logistics), a reusable Python script was built:
-
-```
-scripts/build_embeddings.py
-```
-
-This script:
-- Reads `.txt` files from `src/static/data/`
-- Generates embeddings using `text-embedding-3-small`
-- Saves `embeddings.csv` to `src/api/data/`
-- Deletes the existing Azure Search index so it is recreated fresh on next deploy
-
-Built as a standalone reusable script rather than a one-time CLI command so the pipeline can be re-run whenever the knowledge base is updated or the embedding model changes, without manual steps.
-
----
-
-## Domain Data
-
-Linfox Australia Melbourne logistics operations including depot locations, delivery zones, freight types (including ADG dangerous goods compliance), common delay reasons, driver shift times, escalation process and loading zones added for testing purposes.
-
-Source: `src/static/data/melbourne-logistics.txt`
-
----
-
-## Project Structure
-
-```
-ai-chat-foundry-poc/
-├── docs/
-│   ├── rag-analysis.md              # RAG behaviour analysis report (read this)
-│   └── images/rag_analysis/         # Screenshots and diagrams from testing
-├── scripts/
-│   └── build_embeddings.py          # Custom embedding generation pipeline
-├── src/
-│   ├── api/
-│   │   ├── data/                    # embeddings.csv (auto-generated)
-│   │   └── routes.py                # RAG search and GPT integration
-│   └── static/data/
-│       └── melbourne-logistics.txt  # Domain knowledge base
-└── infra/
-    └── main.bicep                   # Azure infrastructure
-```
-
----
-
-## Try It
-
-The app is not permanently deployed due to Azure running costs. Two options:
-
-**Request a demo:** Reach out via GitHub and a live session can be arranged in a short window.
-
-**Deploy yourself:** Follow the steps below. Deployment takes around 25 minutes.
-
----
-
-## Deploy
-
-### Prerequisites
-
-- Python 3.10+
-- Azure Developer CLI (`azd`)
-- Azure subscription
-- Node.js 18+
-
-### Steps
-
-```powershell
-# Clone
-git clone https://github.com/deesk/ai-chat-foundry-poc.git
-cd ai-chat-foundry-poc
-
-# Virtual environment
-python -m venv .venv
-.venv\Scripts\activate
-
-# Install dependencies
-pip install -r src/api/requirements.txt
-
-# Build embeddings (run whenever knowledge base changes)
-python scripts/build_embeddings.py
-
-# Deploy to Azure
-azd up
-
-# Shutdown when done (prevents unnecessary charges)
-azd down --purge
-```
-
----
-
-## Cost Analysis
- 
-Total project cost: AU$2.59 across 16 active development days.
-Infrastructure accounted for 98% of spend. AI API calls (GPT-4o-mini + embeddings) accounted for 2%.
- 
-See the full [Cost Analysis](docs/cost-analysis.md) for service breakdown, key observations and production considerations.
+**[Cost Analysis](docs/cost-analysis.md)**
+Real Azure spend breakdown across 16 active development days (AU$2.59 total). Covers provisioned vs consumption billing, idle cost observations and production considerations.
 
 ---
 
@@ -193,23 +148,6 @@ return templates.TemplateResponse(
     name="index.html"
 )
 ```
-
 ---
 
-## Certifications
-
-- Microsoft Azure Fundamentals (AZ-900)
-- Microsoft Azure AI Fundamentals (AI-900)
-- Microsoft Azure AI Engineer Associate (AI-102)
-
----
-
-## Author
-
-Sandesh | [GitHub: deesk](https://github.com/deesk)
-
-Melbourne, Australia.
-
----
-
-*This project is a portfolio proof of concept. It is not affiliated with or endorsed by Linfox Australia.*
+*Portfolio proof of concept. Not affiliated with or endorsed by Linfox Australia.*
