@@ -8,6 +8,7 @@
 
 This report documents a systematic investigation of RAG behaviour conducted during the build of a domain-specific logistics chatbot on Azure AI Foundry. Six parts, 8 findings, each discovered through real testing with evidence and root cause analysis.
 
+
 <div align="center"><a href="images/rag_analysis/rag_inforgraph.png"><img src="images/rag_analysis/rag_inforgraph.png" width="80%"></a></div>
 
 <div align="center"><em>Visual summary of key findings, detailed analysis follows below.</em></div>
