@@ -1,6 +1,6 @@
 # Linfox Logistics RAG Chatbot
 
-[Overview](#overview) | [Chatbot in Action](#chatbot-in-action) | [Quick Start](#quick-start) | [Key Findings](#key-findings) | [Architecture](#architecture) | [Reports](#reports) | [Bug Fix](#upstream-bug-fix)
+[Overview](#overview) | [Chatbot in Action](#chatbot-in-action) | [Quick Start](#quick-start) | [Architecture](#architecture) | [Reports](#reports) | [Bug Fix](#upstream-bug-fix)
 
 ---
 
@@ -10,7 +10,7 @@ A domain-specific RAG chatbot built on Azure AI Foundry, customised for Melbourn
 
 Forked from [Azure-Samples/get-started-with-ai-chat](https://github.com/Azure-Samples/get-started-with-ai-chat) and extended with custom data ingestion, infrastructure fixes and systematic behaviour analysis.
 
-Built to investigate emergent RAG behaviour in a production-like environment — how chunking boundaries, prompt versions, and retrieval configurations interact to produce unexpected results in real conditions. Linfox Melbourne logistics operations was chosen as the domain to make the failure modes operationally meaningful rather than theoretical.
+Built to investigate emergent RAG behaviour in a production-like environment, how chunking boundaries, prompt versions, and retrieval configurations interact to produce unexpected results in real conditions. Linfox Melbourne logistics operations was chosen as the domain to make the failure modes operationally meaningful rather than theoretical.
 
 ---
 
@@ -74,30 +74,9 @@ azd up
   <img src="docs/images/rag_analysis/d1_rag_query_flow.png" width="700" alt="RAG Query Flow">
 </div>
 
-A standard RAG pipeline — user query is embedded, matched against the logistics knowledge base in Azure AI Search, top 5 chunks injected into GPT-4o-mini alongside conversation history to generate a response.
+A standard RAG pipeline: user query is embedded, matched against the logistics knowledge base in Azure AI Search, top 5 chunks injected into GPT-4o-mini alongside conversation history to generate a response.
 
 Full architecture and data pipeline details in the [RAG Behaviour Analysis Report](docs/rag-analysis.md).
-
----
-
-## Key Findings
-
-RAG quality depends primarily on data structure, chunking strategy and prompt engineering, not the AI model itself.
-
-**What worked:**
-- Depot locations, shift times and escalation procedures returned correctly when content landed within a single retrieval chunk
-- Out of scope queries handled gracefully without explicit instruction
-- Conversation history supplemented incomplete RAG retrieval in real user sessions
-
-**What failed:**
-- System returned 3 of 4 freight types with full confidence. Dangerous goods missing due to a chunk boundary. No error signal to the user
-- Delivery and loading zones contaminated each other because they shared Melbourne suburb names in content
-- User injected false delay reasons. System accepted them, used real knowledge base data to make them sound credible, and carried them forward even when challenged
-
-**Key insight:**
-The most dangerous failure is not a sorry response. It is a confident wrong answer. A system that sounds certain while missing critical information gives the user no signal to question it.
-
-Full investigation: [RAG Behaviour Analysis Report](docs/rag-analysis.md)
 
 ---
 
